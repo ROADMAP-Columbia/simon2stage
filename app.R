@@ -9,6 +9,7 @@
 
 library(shiny)
 library(DT)
+library(clinfun)
 
 
 # Define UI for application that draws a histogram
