@@ -10,6 +10,7 @@
 library(shiny)
 library(DT)
 library(clinfun)
+library(shinyWidgets)
 
 
 # Define UI for application that draws a histogram
@@ -63,13 +64,20 @@ ui = shiny::fluidPage(
                 min = 100,
                 max = 500,
                 step = 1
+            ), 
+            
+            awesomeRadio(
+                "method", 
+                "Method:",
+                c("Minimax"= "minimax", 
+                  "Optimal" = "optimal")
             )
         ),
         shiny::mainPanel(
             shiny::h5("Sample size calculation for phase II trials using the Simon's two-stage design"),
             dataTableOutput("tab1"),
             
-            shiny::h5("For the Simon optimal design:"),
+            shiny::h5("For the design:"),
             shiny::textOutput("text1"),
             
             shiny::plotOutput("plot1"),
@@ -108,23 +116,43 @@ server = function(input, output) {
             input$n
             
         )
-        paste(
-            "If you see more than",
-            fun$out[which.min(fun$out[, 5]), 1],
-            "responses out of the first",
-            fun$out[which.min(fun$out[, 5]), 2],
-            "participants in the first stage, then accrue to a total of",
-            fun$out[which.min(fun$out[, 5]), 4],
-            "participants. Otherwise if you see",
-            fun$out[which.min(fun$out[, 5]), 1],
-            "or fewer responses out of the first",
-            fun$out[which.min(fun$out[, 5]), 2],
-            "participants in the first stage, then stop the trial. After accruing",
-            fun$out[which.min(fun$out[, 5]), 4],
-            "participants, if you see more than",
-            fun$out[which.min(fun$out[, 5]), 3],
-            "responses, then the intervention is considered worthy of further testing."
-        )
+        
+        if(input$method == "optimal"){
+            paste(
+                "Using Simon's optimal two-stage design, if you see more than",
+                fun$out[which.min(fun$out[, 5]), 1],
+                "responses out of the first",
+                fun$out[which.min(fun$out[, 5]), 2],
+                "participants in the first stage, then accrue to a total of",
+                fun$out[which.min(fun$out[, 5]), 4],
+                "participants. Otherwise if you see",
+                fun$out[which.min(fun$out[, 5]), 1],
+                "or fewer responses out of the first",
+                fun$out[which.min(fun$out[, 5]), 2],
+                "participants in the first stage, then stop the trial. After accruing",
+                fun$out[which.min(fun$out[, 5]), 4],
+                "participants, if you see more than",
+                fun$out[which.min(fun$out[, 5]), 3],
+                "responses, then the intervention is considered worthy of further testing.")
+        }
+        else{
+            paste(
+                "Using Simon's minimax two-stage design, if you see more than",
+                fun$out[1, 1],
+                "responses out of the first",
+                fun$out[1, 2],
+                "participants in the first stage, then accrue to a total of",
+                fun$out[1, 4],
+                "participants. Otherwise if you see",
+                fun$out[1, 1],
+                "or fewer responses out of the first",
+                fun$out[1, 2],
+                "participants in the first stage, then stop the trial. After accruing",
+                fun$out[1, 4],
+                "participants, if you see more than",
+                fun$out[1, 3],
+                "responses, then the intervention is considered worthy of further testing.")
+        }
     })
     
     output$plot1 <- shiny::renderPlot({
