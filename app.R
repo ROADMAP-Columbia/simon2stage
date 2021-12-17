@@ -27,7 +27,7 @@ ui = shiny::fluidPage(
                 value = 0.1,
                 min = 0,
                 max = 1,
-                step = 0.05
+                step = 0.01
             ),
             
             shiny::numericInput(
@@ -36,7 +36,7 @@ ui = shiny::fluidPage(
                 value = 0.3,
                 min = 0,
                 max = 1,
-                step = 0.05
+                step = 0.01
             ),
             
             shiny::numericInput(
@@ -45,7 +45,7 @@ ui = shiny::fluidPage(
                 value = 0.05,
                 min = 0,
                 max = 1,
-                step = 0.05
+                step = 0.005
             ),
             
             shiny::numericInput(
@@ -54,7 +54,7 @@ ui = shiny::fluidPage(
                 value = 0.80,
                 min = 0,
                 max = 1,
-                step = 0.05
+                step = 0.005
             ),
             
             shiny::numericInput(
@@ -74,16 +74,31 @@ ui = shiny::fluidPage(
             )
         ),
         shiny::mainPanel(
-            shiny::h5("Sample size calculation for phase II trials using the Simon's two-stage design"),
+            tabsetPanel(
+            tabPanel("Results",
+            shiny::h4("Sample size calculation for phase II trials using the Simon's two-stage design"),
             dataTableOutput("tab1"),
             
-            shiny::h5("For the design:"),
+            shiny::em("Note: Note: r1 - the threshold for the first stage to stop the trial for futility, 
+                      n1 - number of accrual subjects for stage I, 
+                      n - total number of subjects, 
+                      r - overall threshold to stop the trial for futility, 
+                      EN(p0) - expected sample size for the trial when the true response rate is p0, 
+                      PET(p0) - probability of early termination when the true response rate is p0."),
+            
+            shiny::h4("For the design"),
             shiny::textOutput("text1"),
             
+            shiny::h4("Plot"),
             shiny::plotOutput("plot1"),
             
-            shiny::h5("Reference:"),
-            h6("Simon R (1989). Optimal two-stage designs for phase II clinical trials, Controlled Clinical Trials 10: 1-10.")
+            shiny::h4("Reference"),
+            h6("Simon R (1989). Optimal two-stage designs for phase II clinical trials, Controlled Clinical Trials 10: 1-10.")), 
+            tabPanel("Design Summary", 
+                     tags$iframe(style = "height:400px; width:100%; scrolling=yes", 
+                                 src = "simon2stage_design.pdf"))
+            
+            )
         )
     )
 )
