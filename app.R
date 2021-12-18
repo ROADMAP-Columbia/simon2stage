@@ -80,9 +80,9 @@ ui = shiny::fluidPage(
             dataTableOutput("tab1"),
             
             shiny::em("Note: Note: r1 - the threshold for the first stage to stop the trial for futility, 
+                      r - overall threshold to stop the trial for futility, 
                       n1 - number of accrual subjects for stage I, 
                       n - total number of subjects, 
-                      r - overall threshold to stop the trial for futility, 
                       EN(p0) - expected sample size for the trial when the true response rate is p0, 
                       PET(p0) - probability of early termination when the true response rate is p0."),
             
