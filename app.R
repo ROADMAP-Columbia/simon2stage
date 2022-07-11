@@ -11,6 +11,7 @@ library(shiny)
 library(DT)
 library(clinfun)
 library(shinyWidgets)
+library(diagram)
 
 
 # Define UI for application that draws a histogram
@@ -19,21 +20,24 @@ ui = shiny::fluidPage(
     
     shiny::sidebarLayout(
         shiny::sidebarPanel(
+            shiny::p("This program generates Simon's optimal two-stage designs (Simon, 1989) for Phase II single arm clinical trials."),
+            
             shiny::h4("Design parameters"),
             
+            
             shiny::numericInput(
-                "p0",
-                label = withMathJax("Unacepptable response rate, p0 (null hypothesis):"), 
-                value = 0.1,
+                "p1",
+                label = withMathJax("Acceptable response rate, p1 (alternative hypothesis):"), 
+                value = 0.3,
                 min = 0,
                 max = 1,
                 step = 0.01
             ),
             
             shiny::numericInput(
-                "p1",
-                label = withMathJax("Acceptable response rate, p1 (alternative hypothesis):"), 
-                value = 0.3,
+                "p0",
+                label = withMathJax("Unacepptable response rate, p0 (null hypothesis):"), 
+                value = 0.1,
                 min = 0,
                 max = 1,
                 step = 0.01
@@ -89,7 +93,7 @@ ui = shiny::fluidPage(
             shiny::h4("For the design"),
             shiny::textOutput("text1"),
             
-            shiny::h4("Plot"),
+            shiny::h4("Design Summary"),
             shiny::plotOutput("plot1"),
             
             shiny::h4("Reference"),
@@ -171,14 +175,53 @@ server = function(input, output) {
     })
     
     output$plot1 <- shiny::renderPlot({
+        
         fun <- clinfun::ph2simon(
             input$p0, 
             input$p1, 
             input$alpha, 
             (1 - input$power), 
-            input$n
-        )
-        graphics::plot(fun)
+            input$n)
+            
+        par(mar = c(0, 0, 0, 0), mai=c(0,0,0,0))
+        openplotmat()
+        elpos <- coordinates (c(1, 2, 1, 2)) #, mx = 0.1, my = -0.1)
+        elpos[2,] <- c(0.25, 0.6)
+        elpos[3,] <- c(0.75, 0.6)
+        elpos[5,] <- c(0.25, 0.1)
+        elpos[6,] <- c(0.75, 0.1)
+        
+        straightarrow(from = elpos[1, ], to = elpos[2, ], arr.pos=0.8, arr.col = "blue", lcol = "blue")
+        straightarrow(from = elpos[1, ], to = elpos[3, ], arr.pos=0.8, arr.col = "blue", lcol = "blue")
+        straightarrow(from = elpos[2, ], to = elpos[4, ], arr.pos=0.76, arr.col = "blue", lcol = "blue")
+        straightarrow(from = elpos[4, ], to = elpos[5, ], arr.pos=0.8, arr.col = "blue", lcol = "blue")
+        straightarrow(from = elpos[4, ], to = elpos[6, ], arr.pos=0.8, arr.col = "blue", lcol = "blue")
+        
+        if(input$method == "optimal"){ 
+            a <- paste0("Enroll ",  fun$out[which.min(fun$out[, 5]), 2], " subjects in first stage \n and test their response")
+            b <- paste0("If ", (fun$out[which.min(fun$out[, 5]), 1] + 1), " or more response are observed, \n then another ", fun$out[1, 4] - fun$out[1, 2], " subjects are enrolled")
+            c <- paste("Enroll ", (fun$out[which.min(fun$out[, 5]), 4] - fun$out[which.min(fun$out[, 5]), 2]), " subjects in second \n stage")
+            d <- paste0("If ", fun$out[which.min(fun$out[, 5]), 3] + 1, " or more responses are \n observed, then reject H0")
+        }
+        else{
+            a <- paste0("Enroll ",  fun$out[1, 2], " subjects in first stage \n and test their response")
+            b <- paste0("If ", (fun$out[1, 1] + 1), " or more response are observed, \n then another ", fun$out[1, 4] - fun$out[1, 2], " subjects are enrolled")
+            c <- paste("Enroll ", (fun$out[1, 4] - fun$out[1, 2]), " subjects in second \n stage")
+            d <- paste0("If ", fun$out[1, 3] + 1, " or more responses are \n observed, then reject H0")
+        }
+        
+        textround(elpos[1, ], lab = a,
+                  cex = 1.5, radx = 0.162, rady=0.05, shadow.size=0)
+        textround(elpos[2, ], lab = b,
+                  cex = 1.5, radx=0.162, rady=0.05, shadow.size=0)
+        textround(elpos[3, ], lab = "Otherwise, fail to reject H0  \n and early terminate the study",
+                  cex = 1.5, radx=0.162, rady=0.05, shadow.size=0)
+        textround(elpos[4, ], lab = c,
+                  cex = 1.5, radx=0.162, rady=0.05, shadow.size=0)
+        textround(elpos[5, ], lab = d,
+                  cex = 1.5, radx=0.162, rady=0.05, shadow.size=0)
+        textround(elpos[6, ], lab = "Otherwise, fail to reject H0",
+                  cex = 1.5, radx=0.162, rady=0.05, shadow.size=0)
     })
 }
 
