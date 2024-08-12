@@ -2,7 +2,7 @@
 
 # simon2stage
 
-**Authors**: Thevaa Chandereng and Ying Kuen Cheung
+**Authors**: Thevaa Chandereng
 
 Shiny app for sample size calculation for phase II trials using the Simon's two-stage design. 
 
